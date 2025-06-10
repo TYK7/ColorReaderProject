@@ -1,0 +1,45 @@
+<!-- Standard Angular boilerplate can be removed or kept -->
+<div style="padding: 20px;">
+  <h1>{{ title }}</h1>
+
+  <div>
+    <label for="urlInput">Website URL:</label>
+    <input type="text" id="urlInput" [(ngModel)]="urlToAnalyze" placeholder="e.g., https://www.example.com" style="width: 300px; margin-right: 10px;">
+  </div>
+  <div style="margin-top: 10px;">
+    <label for="topNInput">Number of colors (0 for all):</label>
+    <input type="number" id="topNInput" [(ngModel)]="topNColors" min="0" style="width: 60px; margin-right: 10px;">
+    <button (click)="analyzeUrl()" [disabled]="isLoading">
+      {{ isLoading ? 'Analyzing...' : 'Analyze Colors' }}
+    </button>
+  </div>
+
+  <div *ngIf="errorMessage" style="color: red; margin-top: 15px;">
+    <p>Error: {{ errorMessage }}</p>
+  </div>
+
+  <div *ngIf="analysisResult && !isLoading && !errorMessage" style="margin-top: 20px;">
+    <h2>Analysis Results:</h2>
+    <div *ngIf="isResultMap && resultMap">
+      <h3>Color Frequencies:</h3>
+      <ul>
+        <li *ngFor="let entry of getMapEntries(resultMap)">
+          <span [style.backgroundColor]="entry[0]" style="display: inline-block; width: 20px; height: 20px; border: 1px solid #ccc; margin-right: 5px; vertical-align: middle;"></span>
+          {{ entry[0] }}: {{ entry[1] }}
+        </li>
+      </ul>
+    </div>
+    <div *ngIf="!isResultMap && resultArray">
+      <h3>Top Colors:</h3>
+      <ul>
+        <li *ngFor="let color of resultArray">
+          <span [style.backgroundColor]="color" style="display: inline-block; width: 20px; height: 20px; border: 1px solid #ccc; margin-right: 5px; vertical-align: middle;"></span>
+          {{ color }}
+        </li>
+      </ul>
+    </div>
+     <div *ngIf="resultArray?.length === 0 || getMapEntries(resultMap)?.length === 0">
+        <p>No colors found or returned.</p>
+    </div>
+  </div>
+</div>
