@@ -25,6 +25,16 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "en_US.aff",
+                "input": "src/assets",
+                "output": "/assets"
+              },
+              {
+                "glob": "en_US.dic",
+                "input": "src/assets",
+                "output": "/assets"
               }
             ],
             "styles": [
@@ -86,6 +96,16 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "en_US.aff",
+                "input": "src/assets",
+                "output": "/assets"
+              },
+              {
+                "glob": "en_US.dic",
+                "input": "src/assets",
+                "output": "/assets"
               }
             ],
             "styles": [
