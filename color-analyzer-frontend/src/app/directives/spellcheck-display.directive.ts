@@ -1,6 +1,11 @@
 import { Directive, ElementRef, Input, OnChanges, Renderer2, SimpleChanges, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import * as NSpell from 'nspell';
+// Import as a namespace
+import * as NSpellNamespace from 'nspell';
+
+// Define the type for the NSpell instance
+// It's likely NSpellNamespace.NSpell if @types/nspell defines NSpell within the module's export scope.
+type NSpellInstance = NSpellNamespace.NSpell;
 
 @Directive({
   selector: '[appSpellcheckDisplay]',
@@ -8,8 +13,7 @@ import * as NSpell from 'nspell';
 })
 export class SpellcheckDisplayDirective implements OnChanges, OnInit {
   @Input() htmlContent: string = '';
-
-  private spell: NSpell.NSpell | null = null;
+  private spell: NSpellInstance | null = null;
   private dictionaryLoaded: boolean = false;
 
   constructor(
@@ -32,13 +36,13 @@ export class SpellcheckDisplayDirective implements OnChanges, OnInit {
     try {
       const affPromise = this.http.get('assets/en_US.aff', { responseType: 'text' }).toPromise();
       const dicPromise = this.http.get('assets/en_US.dic', { responseType: 'text' }).toPromise();
-
       const [affData, dicData] = await Promise.all([affPromise, dicPromise]);
 
       if (affData && dicData) {
-        this.spell = NSpell(affData, dicData);
+        // Try to access the nspell function, assuming it might be on .default or the namespace itself
+        const nspellFunction = (NSpellNamespace as any).default || NSpellNamespace;
+        this.spell = nspellFunction(affData, dicData);
         this.dictionaryLoaded = true;
-        // If htmlContent was already set, update it now
         if (this.htmlContent) {
           this.updateContent();
         }
@@ -54,7 +58,6 @@ export class SpellcheckDisplayDirective implements OnChanges, OnInit {
 
   private updateContent(): void {
     if (!this.spell || !this.htmlContent) {
-      // If spell is not loaded or no content, just set original HTML
       this.renderer.setProperty(this.el.nativeElement, 'innerHTML', this.htmlContent || '');
       return;
     }
@@ -68,7 +71,7 @@ export class SpellcheckDisplayDirective implements OnChanges, OnInit {
     this.renderer.setProperty(this.el.nativeElement, 'innerHTML', tempDiv.innerHTML);
   }
 
-  private walkAndSpellcheck(node: Node, spellChecker: NSpell.NSpell): void {
+  private walkAndSpellcheck(node: Node, spellChecker: NSpellInstance): void {
     if (node.nodeType === Node.TEXT_NODE) {
       const textNode = node as Text;
       let newHtml = '';
@@ -90,13 +93,9 @@ export class SpellcheckDisplayDirective implements OnChanges, OnInit {
         const span = this.renderer.createElement('span');
         this.renderer.setProperty(span, 'innerHTML', newHtml);
         // Replace the text node with the new span containing potentially highlighted words
-        // This needs to be done carefully to avoid issues if the parent is not an element or if the node is already removed.
         try {
             textNode.parentNode.replaceChild(span, textNode);
         } catch (e) {
-            // Fallback or error logging if replaceChild fails
-            // This can happen if the text node was part of a larger replacement
-            // For simplicity, we'll log and it might mean some deeply nested text isn't spellchecked
             console.warn("Could not replace text node during spellcheck:", e);
         }
       }

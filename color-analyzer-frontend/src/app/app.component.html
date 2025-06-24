@@ -47,9 +47,19 @@
 
   <div>
     <h2>Spellchecker Demo</h2>
-    <p>The text below should have mispelled words underlined in red (wavy).</p>
+    <p>Type in the box below. Misspelled words will be underlined in the display area.</p>
+
     <div
-      style="border: 1px solid #eee; padding: 10px; margin-top: 10px; background-color: #f9f9f9;"
+      #editableDiv
+      contenteditable="true"
+      (input)="onContentEditableInput($event)"
+      style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; min-height: 100px; background-color: white;"
+      placeholder="Type here...">
+    </div>
+
+    <h3>Display with Spellcheck:</h3>
+    <div
+      style="border: 1px solid #eee; padding: 10px; margin-top: 10px; background-color: #f9f9f9; min-height: 100px;"
       [innerHTML]="htmlContent"
       appSpellcheckDisplay>
     </div>
