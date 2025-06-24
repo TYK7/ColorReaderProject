@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { ColorAnalysisService, ColorAnalysisResponse, ColorFrequencyMap } from './services/color-analysis.service';
 import { CommonModule } from '@angular/common'; // Required for *ngIf, *ngFor etc.
 import { FormsModule } from '@angular/forms'; // Required for ngModel
@@ -6,8 +6,8 @@ import { SpellcheckDisplayDirective } from './directives/spellcheck-display.dire
 
 @Component({
   selector: 'app-root',
-  standalone: true, // Assuming Angular 17+ standalone components by default from ng new
-  imports: [CommonModule, FormsModule, SpellcheckDisplayDirective], // Add FormsModule and SpellcheckDisplayDirective here
+  standalone: true,
+  imports: [CommonModule, FormsModule, SpellcheckDisplayDirective],
   templateUrl: './app.component.html',  // Corrected to conventional name
   styleUrls: ['./app.component.css']    // Corrected to conventional name
 })
@@ -24,6 +24,8 @@ export class AppComponent {
   resultMap: ColorFrequencyMap | null = null;
   resultArray: string[] | null = null;
 
+  @ViewChild('editableDiv') editableDiv!: ElementRef<HTMLDivElement>;
+
   // Content for spellchecking directive
   htmlContent: string = `
     <p>This is a paragarph with some deliberatly mispelled words.</p>
@@ -35,6 +37,17 @@ export class AppComponent {
   `;
 
   constructor(private colorAnalysisService: ColorAnalysisService) {}
+
+  ngAfterViewInit(): void {
+    if (this.editableDiv) {
+      this.editableDiv.nativeElement.innerHTML = this.htmlContent;
+    }
+  }
+
+  onContentEditableInput(event: Event): void {
+    const target = event.target as HTMLDivElement;
+    this.htmlContent = target.innerHTML;
+  }
 
   analyzeUrl(): void {
     if (!this.urlToAnalyze) {
